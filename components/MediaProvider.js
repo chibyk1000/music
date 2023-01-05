@@ -7,7 +7,8 @@ export const MediaContext = createContext()
 
 
 const MediaProvider = ({children}) => {
-const [songs, setSongs] =useState([])
+  const [songs, setSongs] = useState([])
+  const [video, setVideo] = useState([])
   const getMediaLibrary = async () => {
         try {
                 let { status } = await MediaLibrary.requestPermissionsAsync();
@@ -16,14 +17,17 @@ const [songs, setSongs] =useState([])
                 let music = await MediaLibrary.getAssetsAsync({
                   mediaType: ["audio"],
                 });
-                // let info = await MediaLibrary.getAssetInfoAsync({
-                  
-                //   mediaType: ["music"],
-                // });
-                // console.log(info);
-                //   console.log(music.assets);
+                
+         music =  await MediaLibrary.getAssetsAsync({
+           mediaType: ["audio"],
+           first:music.totalCount
+          });
+          setSongs(music.assets); 
+          
 
-                setSongs(music.assets); 
+          let video = await MediaLibrary.getAssetsAsync({ mediaType: "video" })
+          video = await MediaLibrary.getAssetsAsync({ mediaType: "video", first: video.totalCount });
+          setVideo(video.assets)
         } catch (error) {
           console.log(error)
         }
@@ -34,7 +38,7 @@ const [songs, setSongs] =useState([])
         getMediaLibrary()
     },[])
   return (
-    <MediaContext.Provider value={{songs}}>
+    <MediaContext.Provider value={{songs, video}}>
 {children}
     </MediaContext.Provider>
   )

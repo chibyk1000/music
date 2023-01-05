@@ -4,7 +4,7 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 import {MaterialIcons} from '@expo/vector-icons'
 import Music from './Music'
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-import Video from './Video'
+import VideoMedia from './Video'
 const Tab = createMaterialBottomTabNavigator()
 const Drawer = () => {
   return (
@@ -33,7 +33,7 @@ const Drawer = () => {
         />
         <Tab.Screen
           name="Video"
-          component={Video}
+          component={VideoMedia}
                   options={{
                     tabBarLabel: "Video",
               tabBarIcon: ({ color }) => (

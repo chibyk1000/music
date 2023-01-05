@@ -5,6 +5,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Drawer from "./screens/Drawer";
 import MediaProvider from "./components/MediaProvider";
+import VideoPlayers from "./components/VideoPlayer";
 
 const Stack = createNativeStackNavigator();
 export default function App() {
@@ -17,7 +18,14 @@ export default function App() {
             component={Drawer}
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="VideoPlayer"
+            component={VideoPlayers}
+            options={{ headerShown: false }}
+          />
+      
         </Stack.Navigator>
+     
       </NavigationContainer>
     </MediaProvider>
   );

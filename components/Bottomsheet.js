@@ -24,14 +24,21 @@ const Bottomsheet = ({ bottomRef, item }) => {
   const [song, setSong] = useState()
   const { songs } = useContext(MediaContext);
   const [position, setPosition] = useState(0)
-  const [maximum, setMaximum] = useState(0)
-  const [minimum, setMinimum] = useState(0)
+
 const [currentSong, setCurrentSong] = useState()
-  // console.log(song)
+
   const [currentid, setCurrentID] = useState(0)
+
+  const millisToSecondsAndMinutes = (millis) => {
+    let minutes = Math.floor(millis / 60000)
+    let seconds = ((millis % 60000) / 1000).toFixed(0)
+    
+    return seconds === 60 ? minutes + 1 + ":00": minutes + ":" + (seconds<10? "0": "") + seconds
+}
+
   const getMusicInfo = async () => {
     try {
-      // console.log(item)
+
    
           
     } catch (error) {
@@ -44,10 +51,11 @@ const [currentSong, setCurrentSong] = useState()
     return setCurrentID(songindex)
   }
   const playNextSong = () => {
-    // console.log(item)
+    if (currentid === songs.length - 1) {
+   return playSound(songs[0])
+ }
     let id = currentid
     id++
-    // console.log(id)
     const nextSong = songs[id]
     // console.log(nextSong)
 
@@ -55,9 +63,12 @@ const [currentSong, setCurrentSong] = useState()
   }
 
    const playPrevSong = () => {
-     let id = currentid;
-     id--;
-    //  console.log(id);
+     if (currentid === 0) {
+      return playSound(songs[songs.length -1])
+     }
+     
+       let id = currentid;
+       id--;
      const nextSong = songs[id];
      // console.log(nextSong)
 
@@ -81,13 +92,13 @@ const [currentSong, setCurrentSong] = useState()
       
 
       sound._onPlaybackStatusUpdate = async (data) => {
-        // console.log(data)
+      
         if (data.isPlaying) {
           setPosition((data.positionMillis))
-          setMaximum((data.durationMillis))
-          setMinimum((data.playableDurationMillis))
-          const date = new Date(data.playableDurationMillis)
-          console.log(date.getMinutes() + ":" + date.getSeconds() )
+        
+      
+        }else if (data.didJustFinish) {
+ return playSound(songs[currentid +1])
         }
       }
 
@@ -130,7 +141,7 @@ setIsPlaying(pause?.isPlaying)
 
 
   
-  console.log(position);
+
   const continueSong = async () => {
     try {
       setIsPlaying(true)
@@ -139,9 +150,13 @@ setIsPlaying(pause?.isPlaying)
       console.log(error)
     }
   }
-  // console.log(currentSong)
-  // console.log(sound);
-//  console.log(position)
+  const playFromPosition = async (pos) => {
+  try {
+    await sound.playFromPositionAsync(pos)
+  } catch (error) {
+    console.log(error)
+  }
+}
   return (
     <SafeAreaView className="flex-1 justify-center items-center ">
       <BottomSheet
@@ -163,21 +178,19 @@ setIsPlaying(pause?.isPlaying)
         </View>
         <View className="mt-6">
           <Slider
-            maximumValue={maximum}
-            minimumValue={0}
+            maximumValue={currentSong?.durationMillis}
+           
             value={position}
-            // onValueChange={(value) => setPosition(value )}
+         onSlidingComplete = {(value)=> playFromPosition(value)}
             minimumTrackTintColor={"white"}
             maximumTrackTintColor="gold"
             style={{ height: 5 }}
             thumbTintColor="white"
           />
           <View className="flex-row justify-between px-3 mt-1">
-            <Text className="text-white font-bold">0</Text>
+            <Text className="text-white font-bold">{millisToSecondsAndMinutes(position) }</Text>
             <Text className="text-white font-bold">
-              {new Date(maximum - minimum).getMinutes() +
-                ":" +
-                new Date(maximum - minimum).getSeconds()}
+         {millisToSecondsAndMinutes(currentSong?.durationMillis - position )}
             </Text>
           </View>
 
@@ -188,11 +201,11 @@ setIsPlaying(pause?.isPlaying)
             <View className="bg-[#f2f2f2] rounded-full">
               {playing ? (
                 <TouchableOpacity onPress={pauseMusic}>
-                  <MaterialIcons name="play-arrow" size={54} color="gold" />
+                  <MaterialIcons name="pause" size={54} color="gold" />
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity onPress={continueSong}>
-                  <MaterialIcons name="pause" size={54} color="gold" />
+                  <MaterialIcons name="play-arrow" size={54} color="gold" />
                 </TouchableOpacity>
               )}
             </View>
